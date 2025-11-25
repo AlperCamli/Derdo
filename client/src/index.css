@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.banner {
+  @apply bg-yellow-100 text-yellow-900 text-sm p-3 rounded-md border border-yellow-300;
+}
+.card {
+  @apply bg-white shadow rounded-lg p-4 border border-slate-200;
+}
+.btn {
+  @apply px-4 py-2 rounded-md font-semibold;
+}
