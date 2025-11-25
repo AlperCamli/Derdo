@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 
 const PostProblem = () => {
   const [title, setTitle] = useState("");
@@ -10,7 +10,7 @@ const PostProblem = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/api/problems", { title, description, category });
+      await api.post("/api/problems", { title, description, category });
       setStatus("Problem posted! You can head to Swipe to meet helpers.");
       setTitle("");
       setDescription("");

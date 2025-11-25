@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
-
-axios.defaults.withCredentials = true;
+import api from "../lib/api";
 
 export interface AuthUser {
   id: string;
   pseudonym: string;
+  isAdmin?: boolean;
 }
 
 interface AuthContextValue {
@@ -25,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get("/api/auth/me");
+        const res = await api.get("/api/auth/me");
         setUser(res.data);
       } catch (err) {
         setUser(null);

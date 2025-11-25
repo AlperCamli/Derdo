@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api";
 import { useAuth } from "../hooks/useAuth";
 
 const NavBar = () => {
@@ -7,7 +7,7 @@ const NavBar = () => {
   const { user, setUser } = useAuth();
 
   const logout = async () => {
-    await axios.post("/api/auth/logout");
+    await api.post("/api/auth/logout");
     setUser(null);
     navigate("/login");
   };
@@ -27,6 +27,11 @@ const NavBar = () => {
         <Link to="/matches" className="hover:underline">
           Matches
         </Link>
+        {user?.isAdmin && (
+          <Link to="/admin" className="hover:underline">
+            Admin
+          </Link>
+        )}
         {user && <span className="text-slate-300">You are {user.pseudonym}</span>}
         <button
           onClick={logout}

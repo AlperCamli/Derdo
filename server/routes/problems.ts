@@ -9,8 +9,17 @@ const router = Router();
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { title, description, category } = req.body;
+    const allowedCategories = ["financial", "relationship", "career", "daily", "other"];
     if (!title || !description || !category) {
       return res.status(400).json({ message: "Missing fields" });
+    }
+    if (!allowedCategories.includes(category)) {
+      return res.status(400).json({ message: "Invalid category" });
+    }
+    if (title.length > 80 || description.length > 500) {
+      return res
+        .status(400)
+        .json({ message: "Title or description exceeds allowed length" });
     }
     const post = await ProblemPost.create({
       owner: req.user!._id,
@@ -32,7 +41,8 @@ router.get("/swipe-deck", authMiddleware, async (req, res) => {
 
     const posts = await ProblemPost.find({
       owner: { $ne: userId },
-      _id: { $nin: swipedIds }
+      _id: { $nin: swipedIds },
+      isOpen: true
     })
       .sort({ createdAt: -1 })
       .limit(20);
@@ -44,15 +54,19 @@ router.get("/swipe-deck", authMiddleware, async (req, res) => {
 });
 
 router.patch("/:id/close", authMiddleware, async (req, res) => {
-  const { id } = req.params;
-  const post = await ProblemPost.findById(id);
-  if (!post) return res.status(404).json({ message: "Not found" });
-  if (post.owner.toString() !== req.user!._id.toString()) {
-    return res.status(403).json({ message: "Forbidden" });
+  try {
+    const { id } = req.params;
+    const post = await ProblemPost.findById(id);
+    if (!post) return res.status(404).json({ message: "Not found" });
+    if (post.owner.toString() !== req.user!._id.toString()) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    post.isOpen = false;
+    await post.save();
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ message: "Unable to close problem" });
   }
-  post.isOpen = false;
-  await post.save();
-  res.json(post);
 });
 
 // Swipe endpoint handles matching logic
@@ -60,12 +74,17 @@ router.post("/:id/swipe", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { direction } = req.body as { direction: "left" | "right" };
-    if (!direction) return res.status(400).json({ message: "Direction required" });
+    if (!direction || (direction !== "left" && direction !== "right")) {
+      return res.status(400).json({ message: "Direction must be left or right" });
+    }
 
     const problem = await ProblemPost.findById(id);
     if (!problem) return res.status(404).json({ message: "Problem not found" });
     if (problem.owner.toString() === req.user!._id.toString()) {
       return res.status(400).json({ message: "Cannot swipe your own problem" });
+    }
+    if (!problem.isOpen && direction === "right") {
+      return res.status(400).json({ message: "Problem is closed to new matches" });
     }
 
     await Swipe.findOneAndUpdate(

@@ -12,6 +12,13 @@ const signToken = (id: string) => {
   return jwt.sign({ id }, secret, { expiresIn: "7d" });
 };
 
+const isAdminEmail = (email: string) => {
+  const allowList = process.env.ADMIN_EMAILS?.split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return !!allowList?.includes(email.toLowerCase());
+};
+
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -28,12 +35,22 @@ router.post("/register", async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await UserModel.create({ email, passwordHash, pseudonym });
+    const user = await UserModel.create({
+      email,
+      passwordHash,
+      pseudonym,
+      isAdmin: isAdminEmail(email)
+    });
 
     const token = signToken(user._id.toString());
     res
       .cookie("token", token, { httpOnly: true, sameSite: "lax" })
-      .json({ id: user._id, pseudonym: user.pseudonym, email: user.email });
+      .json({
+        id: user._id,
+        pseudonym: user.pseudonym,
+        email: user.email,
+        isAdmin: user.isAdmin
+      });
   } catch (err) {
     res.status(500).json({ message: "Registration failed" });
   }
@@ -54,7 +71,12 @@ router.post("/login", async (req, res) => {
     const token = signToken(user._id.toString());
     res
       .cookie("token", token, { httpOnly: true, sameSite: "lax" })
-      .json({ id: user._id, pseudonym: user.pseudonym, email: user.email });
+      .json({
+        id: user._id,
+        pseudonym: user.pseudonym,
+        email: user.email,
+        isAdmin: user.isAdmin
+      });
   } catch (err) {
     res.status(500).json({ message: "Login failed" });
   }
@@ -73,7 +95,7 @@ router.get("/me", async (req, res) => {
     const payload = jwt.verify(token, secret) as { id: string };
     const user = await UserModel.findById(payload.id);
     if (!user) return res.status(401).json({ message: "Unauthenticated" });
-    res.json({ id: user._id, pseudonym: user.pseudonym });
+    res.json({ id: user._id, pseudonym: user.pseudonym, isAdmin: user.isAdmin });
   } catch (err) {
     res.status(401).json({ message: "Unauthenticated" });
   }

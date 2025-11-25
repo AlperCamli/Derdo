@@ -8,6 +8,7 @@ import problemRoutes from "./routes/problems";
 import matchRoutes from "./routes/matches";
 import messageRoutes from "./routes/messages";
 import reportRoutes from "./routes/reports";
+import adminRoutes from "./routes/admin";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/problems", problemRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/matches", messageRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Basic error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

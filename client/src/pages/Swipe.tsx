@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Problem {
@@ -18,7 +18,7 @@ const Swipe = () => {
   const { data, refetch, isFetching } = useQuery<Problem[]>({
     queryKey: ["swipe-deck"],
     queryFn: async () => {
-      const res = await axios.get("/api/problems/swipe-deck");
+      const res = await api.get("/api/problems/swipe-deck");
       return res.data;
     }
   });
@@ -28,14 +28,14 @@ const Swipe = () => {
 
   const swipe = async (direction: "left" | "right") => {
     if (!current) return;
-    await axios.post(`/api/problems/${current._id}/swipe`, { direction });
+    await api.post(`/api/problems/${current._id}/swipe`, { direction });
     queryClient.invalidateQueries({ queryKey: ["swipe-deck"] });
     refetch();
   };
 
   const sendReport = async (problemId: string) => {
     if (!reason.trim()) return;
-    await axios.post("/api/reports", { targetProblemId: problemId, reason });
+    await api.post("/api/reports", { targetProblemId: problemId, reason });
     setReporting(null);
     setReason("");
   };

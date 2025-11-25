@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 
@@ -20,21 +20,21 @@ const ChatView = ({ matchId }: { matchId: string }) => {
   const { data: messages } = useQuery<Message[]>({
     queryKey: ["messages", matchId],
     queryFn: async () => {
-      const res = await axios.get(`/api/matches/${matchId}/messages`);
+      const res = await api.get(`/api/matches/${matchId}/messages`);
       return res.data;
     }
   });
 
   const sendMessage = async () => {
     if (!content.trim()) return;
-    await axios.post(`/api/matches/${matchId}/messages`, { content });
+    await api.post(`/api/matches/${matchId}/messages`, { content });
     setContent("");
     queryClient.invalidateQueries({ queryKey: ["messages", matchId] });
   };
 
   const submitReport = async (messageId: string) => {
     if (!reason.trim()) return;
-    await axios.post("/api/reports", { targetMessageId: messageId, reason });
+    await api.post("/api/reports", { targetMessageId: messageId, reason });
     setReporting(null);
     setReason("");
   };

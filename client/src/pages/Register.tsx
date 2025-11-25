@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api";
 import { useAuth } from "../hooks/useAuth";
 
 const Register = () => {
@@ -13,8 +13,12 @@ const Register = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/auth/register", { email, password });
-      setUser({ id: res.data.id, pseudonym: res.data.pseudonym });
+      const res = await api.post("/api/auth/register", { email, password });
+      setUser({
+        id: res.data.id,
+        pseudonym: res.data.pseudonym,
+        isAdmin: res.data.isAdmin
+      });
       navigate("/swipe");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Registration failed");

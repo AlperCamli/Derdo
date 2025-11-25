@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 import { useQuery } from "@tanstack/react-query";
 import ChatView from "../components/ChatView";
 
@@ -15,7 +15,7 @@ const Matches = () => {
   const { data: matches } = useQuery<Match[]>({
     queryKey: ["matches"],
     queryFn: async () => {
-      const res = await axios.get("/api/matches");
+      const res = await api.get("/api/matches");
       return res.data;
     }
   });

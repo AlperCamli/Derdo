@@ -17,6 +17,8 @@ MONGODB_URI=mongodb://localhost:27017/anonbuddy
 JWT_SECRET=replace-with-secure-secret
 CLIENT_ORIGIN=http://localhost:5173
 PORT=4000
+# Optional: comma-separated list of admin emails allowed to access the admin console
+ADMIN_EMAILS=admin@example.com
 ```
 
 ## Running the server
@@ -41,5 +43,6 @@ Open the Vite dev server (default `http://localhost:5173`). Requests to `/api` a
 - Swipe left/right on others' problems; right swipes create matches automatically.
 - View matches and chat anonymously.
 - Report problems or specific chat messages for moderation.
+- Admin console (only for accounts whose email appears in `ADMIN_EMAILS`) to review/resolve reports, force-close matches, and delete abusive accounts.
 
 This prototype is for peer support only and does not replace professional help.

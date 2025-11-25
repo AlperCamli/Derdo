@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Swipe from "./pages/Swipe";
 import PostProblem from "./pages/PostProblem";
 import Matches from "./pages/Matches";
+import AdminDashboard from "./pages/AdminDashboard";
 import NavBar from "./components/NavBar";
 import { useAuth } from "./hooks/useAuth";
 
@@ -12,6 +13,15 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const location = useLocation();
   if (loading) return <div className="p-6">Loading...</div>;
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  return children;
+};
+
+const RequireAdmin = ({ children }: { children: JSX.Element }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!user.isAdmin) return <Navigate to="/swipe" replace state={{ from: location }} />;
   return children;
 };
 
@@ -49,6 +59,14 @@ const App = () => {
               <RequireAuth>
                 <Matches />
               </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
             }
           />
           <Route
